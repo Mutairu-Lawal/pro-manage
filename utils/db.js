@@ -20,7 +20,16 @@ const DB = {
     }
   },
 
-  getUser: async function (email) {
+  getUserByID: async function (id) {
+    try {
+      const res = await this.loadDB();
+      if (!res) throw Error('Unable to get data');
+      return res.usersDB.find((u) => u.id === Number(id));
+    } catch (error) {
+      return error.message;
+    }
+  },
+  getUserByEmail: async function (email) {
     try {
       const res = await this.loadDB();
       if (!res) throw Error('Unable to get data');

@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const DB = require('../utils/db');
+const checkAuth = require('../middlewares/authHandler');
 
 const JWT_SECRET_TOKEN = process.env.JWT_SECRET_TOKEN || 'pro-manage.js';
 
@@ -29,7 +30,7 @@ router.post(
       if (!ROLES.includes(role)) throw new Error('Invalid Role');
 
       // check if user already exists
-      const userExists = await DB.getUser(email);
+      const userExists = await DB.getUserByEmail(email);
       if (userExists instanceof Object) throw new Error('User already exists');
 
       // hash the password
@@ -74,7 +75,7 @@ router.post(
 
       const { email, password } = req.body;
 
-      const user = await DB.getUser(email);
+      const user = await DB.getUserByEmail(email);
       if (!user) throw new Error('Invalid Credentials');
 
       const isMatch = await bcrypt.compare(password, user.password);
@@ -88,7 +89,7 @@ router.post(
         },
         JWT_SECRET_TOKEN,
         {
-          expiresIn: '1m',
+          expiresIn: '5m',
         }
       );
 
@@ -101,8 +102,10 @@ router.post(
 );
 
 // user profile routh
-router.get('/profile', (req, res) => {
-  res.json({ message: 'Welcome to user profile end point' });
+router.get('/profile', checkAuth, async (req, res) => {
+  const currentUser = await DB.getUserByID(req.user._id);
+  const { name, role, email } = currentUser;
+  res.json({ name, email, role });
 });
 
 module.exports = router;
