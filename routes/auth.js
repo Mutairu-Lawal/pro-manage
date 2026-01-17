@@ -2,8 +2,9 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 const DB = require('../utils/db');
+
+const JWT_SECRET_TOKEN = process.env.JWT_SECRET_TOKEN || 'pro-manage.js';
 
 const router = express.Router();
 // route for registering user
@@ -70,7 +71,7 @@ router.post(
         {
           _id: user.id,
         },
-        process.env.JWT_SECRET_TOKEN,
+        JWT_SECRET_TOKEN,
         {
           expiresIn: '1m',
         }
