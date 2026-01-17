@@ -48,6 +48,7 @@ router.post(
         email,
         role: role ? role.trim() : 'member',
         password: hashedPassword,
+        createdAt: new Date(),
       };
 
       // store into the db
@@ -104,8 +105,8 @@ router.post(
 // user profile routh
 router.get('/profile', checkAuth, async (req, res) => {
   const currentUser = await DB.getUserByID(req.user._id);
-  const { name, role, email } = currentUser;
-  res.json({ name, email, role });
+  const { name, role, email, createdAt } = currentUser;
+  res.json({ name, email, role, createdAt });
 });
 
 module.exports = router;
