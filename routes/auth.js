@@ -7,6 +7,7 @@ const DB = require('../utils/db');
 const JWT_SECRET_TOKEN = process.env.JWT_SECRET_TOKEN || 'pro-manage.js';
 
 const router = express.Router();
+
 // route for registering user
 //@desc password input must be min=8 , and must contain upperCase,lowercase,numeric and special characters
 router.post(
@@ -14,11 +15,24 @@ router.post(
   body('email').trim().notEmpty().toLowerCase().normalizeEmail().isEmail(),
   body('name').trim().notEmpty().isLength({ min: 3 }).toLowerCase().escape(),
   body('password').trim().notEmpty().isStrongPassword(),
+  body('role').default('member').trim().toLowerCase(),
   async (req, res) => {
     try {
       const error = validationResult(req);
-      if (!error.isEmpty()) throw error;
+      const ROLES = ['member', 'admin', 'manager'];
       const { password, email, role, name } = req.body;
+
+      // checking if validator has error
+      if (!error.isEmpty()) throw error;
+
+      // check if the role exist
+      if (!ROLES.includes(role)) throw new Error('Invalid Role');
+
+      // check if user already exists
+      const userExists = await DB.getUser(email);
+      if (userExists instanceof Object) throw new Error('User already exists');
+
+      // hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // laod db
@@ -42,7 +56,8 @@ router.post(
 
       res.status(201).json({ message: 'User created' });
     } catch (error) {
-      res.status(400).json(error);
+      const errorMessage = error.message || error;
+      res.status(400).json(errorMessage);
     }
   }
 );

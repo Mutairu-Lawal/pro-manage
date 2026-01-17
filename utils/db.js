@@ -1,9 +1,11 @@
 const fs = require('fs/promises');
 
+const FILEPATH = 'db.json';
+
 const DB = {
   loadDB: async () => {
     try {
-      const db = await fs.readFile('dist/users.json', 'utf-8');
+      const db = await fs.readFile(FILEPATH, 'utf-8');
       return JSON.parse(db);
     } catch (error) {
       return null;
@@ -11,7 +13,7 @@ const DB = {
   },
   saveToDB: async (updatedDB) => {
     try {
-      await fs.writeFile('dist/users.json', JSON.stringify(updatedDB));
+      await fs.writeFile(FILEPATH, JSON.stringify(updatedDB));
       return true;
     } catch (error) {
       return null;
