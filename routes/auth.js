@@ -1,14 +1,16 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
-const fs = require('fs/promises');
+const jwt = require('jsonwebtoken');
+
+const DB = require('../utils/db');
 
 const router = express.Router();
 // route for registering user
 //@desc password input must be min=8 , and must contain upperCase,lowercase,numeric and special characters
 router.post(
   '/register',
-  body('email').trim().notEmpty().toLowerCase(),
+  body('email').trim().notEmpty().toLowerCase().normalizeEmail().isEmail(),
   body('name').trim().notEmpty().isLength({ min: 3 }).toLowerCase().escape(),
   body('password').trim().notEmpty().isStrongPassword(),
   async (req, res) => {
@@ -19,11 +21,10 @@ router.post(
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // laod db
-      const db = await fs.readFile('dist/users.json', 'utf-8');
-      const jsonDB = JSON.parse(db);
+      const db = await DB.loadDB();
 
       // constructing the ID
-      let lastIndexID = jsonDB.usersDB.at(-1)?.id;
+      let lastIndexID = db.usersDB.at(-1)?.id;
 
       const newUser = {
         id: lastIndexID ? (lastIndexID += 1) : 1,
@@ -34,9 +35,9 @@ router.post(
       };
 
       // store into the db
-      const updatedDB = { ...jsonDB, usersDB: [...jsonDB.usersDB, newUser] };
+      const updatedDB = { ...db, usersDB: [...db.usersDB, newUser] };
 
-      // await fs.writeFile('dist/users.json', JSON.stringify(updatedDB));
+      await DB.saveToDB(updatedDB);
 
       res.status(201).json({ message: 'User created' });
     } catch (error) {
@@ -46,9 +47,42 @@ router.post(
 );
 
 // login route
-router.post('/login', (req, res) => {
-  res.json({ message: 'Welcome to login end point' });
-});
+router.post(
+  '/login',
+  body('email').trim().notEmpty().toLowerCase().isEmail(),
+  body('password').trim().notEmpty(),
+  async (req, res) => {
+    try {
+      const error = validationResult(req);
+      if (!error.isEmpty()) throw new Error('Invalid Inputs');
+
+      const { email, password } = req.body;
+
+      const user = await DB.getUser(email);
+      if (!user) throw new Error('Invalid Credentials');
+
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) throw new Error('Invalid Credentials');
+
+      // create token
+      const token = jwt.sign(
+        {
+          _id: user.id,
+        },
+        process.env.JWT_SECRET_TOKEN,
+        {
+          expiresIn: '1m',
+        }
+      );
+
+      // return token
+      res.json({ token });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+);
 
 // user profile routh
 router.get('/profile', (req, res) => {
