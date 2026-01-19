@@ -7,8 +7,14 @@ const router = express.Router();
 
 router.use(checkAuth);
 
-router.get('/', (req, res) => {
-  res.json('Get');
+router.get('/', async (req, res) => {
+  try {
+    const { _id: userID } = req.user;
+    const userTeams = await teamsDB.getUserTeams(userID);
+    res.json(userTeams);
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.post(

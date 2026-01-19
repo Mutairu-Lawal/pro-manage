@@ -30,14 +30,9 @@ const teamsDB = {
     }
   },
 
-  getUserByID: async function (id) {
-    try {
-      const res = await this.loadDB();
-      if (!res) throw Error('Unable to get data');
-      return res.usersDB.find((u) => u.id === Number(id));
-    } catch (error) {
-      return error.message;
-    }
+  getUserTeams: async function (id) {
+    const res = await this.getTeamsDB();
+    return res.filter((team) => team.owner === Number(id));
   },
 };
 

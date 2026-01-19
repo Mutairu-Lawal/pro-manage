@@ -20,7 +20,8 @@ const createUser = async (req, res) => {
 
     // check if user already exists
     const userExists = await DB.getUserByEmail(email);
-    if (userExists instanceof Object) throw new Error('User already exists');
+    if (userExists instanceof Object)
+      throw new Error('User with the email already exists');
 
     // hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
