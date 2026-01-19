@@ -73,8 +73,8 @@ const loginUser = async (req, res) => {
       },
       JWT_SECRET_TOKEN,
       {
-        expiresIn: '5m',
-      }
+        expiresIn: '30m',
+      },
     );
 
     // return token

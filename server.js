@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3030;
   try {
     await fs.access('db.json');
   } catch (error) {
-    await fs.writeFile('db.json', JSON.stringify({ usersDB: [] }));
+    await fs.writeFile('db.json', JSON.stringify({ usersDB: [], teamsDB: [] }));
   }
 })();
 

@@ -1,10 +1,14 @@
 const express = require('express');
-const authRouter = require('./routes/auth');
 const cors = require('cors');
 const helmet = require('helmet');
+
+// custom middlewares
 const NotFoundPage = require('./middlewares/notFoundPage');
 const ErrorHandler = require('./middlewares/errorhandler');
-const errorHandler = require('./middlewares/errorhandler');
+
+// routers
+const authRouter = require('./routes/auth');
+const teamsRouter = require('./routes/teams');
 
 const app = express();
 
@@ -17,10 +21,13 @@ app.get('/', (req, res) => {
   res.send('Welcome to proManage express api end point');
 });
 
+// auth routes
 app.use('/auth', authRouter);
+// teams route
+app.use('/teams', teamsRouter);
 
 app.use(NotFoundPage);
 
-app.use(errorHandler);
+app.use(ErrorHandler);
 
 module.exports = app;
