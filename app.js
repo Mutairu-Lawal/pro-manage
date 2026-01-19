@@ -2,6 +2,9 @@ const express = require('express');
 const authRouter = require('./routes/auth');
 const cors = require('cors');
 const helmet = require('helmet');
+const NotFoundPage = require('./middlewares/notFoundPage');
+const ErrorHandler = require('./middlewares/errorhandler');
+const errorHandler = require('./middlewares/errorhandler');
 
 const app = express();
 
@@ -16,12 +19,8 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRouter);
 
-app.use((req, res, next) => {
-  res.status(404).json({ message: 'Page Not Found' });
-});
+app.use(NotFoundPage);
 
-app.use((err, req, res) => {
-  res.status(500).json({ message: 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 module.exports = app;
