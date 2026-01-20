@@ -50,4 +50,16 @@ const getTeams = async (req, res) => {
   }
 };
 
-module.exports = { createTeams, getTeams };
+const inviteUser = async (req, res) => {
+  const { id } = req.params;
+
+  // check the invite id
+  if (isNaN(id) || id <= 0) {
+    return res.status(400).json({ message: 'Invalid team ID' });
+  }
+
+  // Invitation logic goes here
+  res.status(200).json({ message: `Invitation sent for user ID: ${id}` });
+};
+
+module.exports = { createTeams, getTeams, inviteUser };

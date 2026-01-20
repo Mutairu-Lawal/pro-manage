@@ -1,7 +1,11 @@
 const express = require('express');
 const checkAuth = require('../middlewares/authHandler');
 const { body } = require('express-validator');
-const { createTeams, getTeams } = require('../controllers/teams.controller');
+const {
+  createTeams,
+  getTeams,
+  inviteUser,
+} = require('../controllers/teams.controller');
 
 const router = express.Router();
 
@@ -18,8 +22,6 @@ router
     createTeams,
   );
 
-router.post('/:id/invite', async (req, res) => {
-  res.json('yes');
-});
+router.post('/:id/invite', inviteUser);
 
 module.exports = router;
