@@ -9,6 +9,7 @@ const ErrorHandler = require('./middlewares/errorhandler');
 // routers
 const authRouter = require('./routes/auth');
 const teamsRouter = require('./routes/teams');
+const projectsRouter = require('./routes/projects');
 
 const app = express();
 
@@ -25,6 +26,8 @@ app.get('/', (req, res) => {
 app.use('/auth', authRouter);
 // teams route
 app.use('/teams', teamsRouter);
+// projects route
+app.use('/projects', projectsRouter);
 
 app.use(NotFoundPage);
 
