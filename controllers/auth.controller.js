@@ -40,7 +40,7 @@ const createUser = async (req, res) => {
     const db = await DB.loadDB();
 
     // Construct the ID
-    const lastIndexID = db.usersDB.at(-1)?.id;
+    let lastIndexID = db.usersDB.at(-1)?.id;
 
     const newUser = {
       id: lastIndexID ? (lastIndexID += 1) : 1,
@@ -89,11 +89,9 @@ const loginUser = async (req, res) => {
     }
 
     // Create token
-    const token = jwt.sign(
-      { _id: user.id },
-      JWT_SECRET_TOKEN,
-      { expiresIn: '30m' },
-    );
+    const token = jwt.sign({ _id: user.id }, JWT_SECRET_TOKEN, {
+      expiresIn: '30m',
+    });
 
     // Return token
     res.json({ token });
