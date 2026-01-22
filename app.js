@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { swaggerUi, specs } = require('./swagger');
 
 // Rate Limiter
 const limiter = rateLimit({
@@ -26,6 +27,17 @@ app.use(helmet());
 app.use(cors());
 app.use(limiter);
 app.use(express.json());
+
+// Swagger UI
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  }),
+);
 
 app.get('/', (req, res) => {
   res.send('Welcome to proManage express api end point');
