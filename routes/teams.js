@@ -1,6 +1,6 @@
 const express = require('express');
-const checkAuth = require('../middlewares/authHandler');
 const { body } = require('express-validator');
+const checkAuth = require('../middlewares/authHandler');
 const {
   createTeams,
   getTeams,
@@ -11,6 +11,10 @@ const router = express.Router();
 
 router.use(checkAuth);
 
+/**
+ * Get teams - GET /
+ * Create team - POST /
+ */
 router
   .route('/')
   .get(getTeams)
@@ -22,6 +26,9 @@ router
     createTeams,
   );
 
+/**
+ * Invite user to team - POST /:id/invite
+ */
 router.post('/:id/invite', inviteUser);
 
 module.exports = router;

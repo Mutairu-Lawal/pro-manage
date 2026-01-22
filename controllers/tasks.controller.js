@@ -1,21 +1,33 @@
 const { validationResult } = require('express-validator');
 
+/**
+ * Get tasks for a project
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const getTasks = async (req, res) => {
   try {
     const error = validationResult(req);
 
-    if (!error.isEmpty()) throw error;
+    if (!error.isEmpty()) {
+      throw error;
+    }
 
     const { projectId, status } = req.query;
 
     res.json({
-      data: `query tasks for projectId  ${projectId} with ${status} status`,
+      data: `query tasks for projectId ${projectId} with ${status} status`,
     });
   } catch (error) {
     res.status(400).json(error);
   }
 };
 
+/**
+ * Create a new task
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const createTask = async (req, res) => {
   const error = validationResult(req);
 
@@ -50,6 +62,11 @@ const createTask = async (req, res) => {
   });
 };
 
+/**
+ * Update an existing task
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const updateTask = async (req, res) => {
   const error = validationResult(req);
 
@@ -90,6 +107,11 @@ const updateTask = async (req, res) => {
   });
 };
 
+/**
+ * Delete a task
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const deleteTask = async (req, res) => {
   const { id } = req.params;
 

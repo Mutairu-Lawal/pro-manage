@@ -1,22 +1,29 @@
 const { validationResult } = require('express-validator');
 const teamsDB = require('../utils/teams');
 
+/**
+ * Create a new team
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const createTeams = async (req, res) => {
   try {
     const error = validationResult(req);
 
-    //   checking if validator has error
-    if (!error.isEmpty()) throw error;
+    // Check if validator has error
+    if (!error.isEmpty()) {
+      throw error;
+    }
 
     const { name } = req.body;
     const { _id: userID } = req.user;
 
     const teams = await teamsDB.getTeamsDB();
 
-    // constructing the ID
-    let lastIndexID = teams.at(-1)?.id;
+    // Construct the ID
+    const lastIndexID = teams.at(-1)?.id;
 
-    //   const creating teams
+    // Create new team
     const newTeam = {
       id: lastIndexID ? (lastIndexID += 1) : 1,
       name,
@@ -29,7 +36,7 @@ const createTeams = async (req, res) => {
       createdAt: new Date(),
     };
 
-    // save to data
+    // Save to database
     const updatedTeamsDB = [...teams, newTeam];
 
     await teamsDB.saveToDB(updatedTeamsDB);
@@ -40,20 +47,30 @@ const createTeams = async (req, res) => {
   }
 };
 
+/**
+ * Get user teams
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const getTeams = async (req, res) => {
   try {
     const { _id: userID } = req.user;
     const userTeams = await teamsDB.getUserTeams(userID);
     res.json(userTeams);
   } catch (error) {
-    next(error);
+    res.status(400).json(error);
   }
 };
 
+/**
+ * Invite user to team
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const inviteUser = async (req, res) => {
   const { id } = req.params;
 
-  // check the invite id
+  // Check the invite id
   if (isNaN(id) || id <= 0) {
     return res.status(400).json({ message: 'Invalid team ID' });
   }

@@ -1,36 +1,46 @@
 const DB = require('../utils/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 const { validationResult } = require('express-validator');
 
 const JWT_SECRET_TOKEN = process.env.JWT_SECRET_TOKEN || 'pro-manage.js';
 
+const ROLES = ['member', 'admin', 'manager'];
+
+/**
+ * Create a new user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const createUser = async (req, res) => {
   try {
     const error = validationResult(req);
-    const ROLES = ['member', 'admin', 'manager'];
     const { password, email, role, name } = req.body;
 
-    // checking if validator has error
-    if (!error.isEmpty()) throw error;
+    // Check if validator has error
+    if (!error.isEmpty()) {
+      throw error;
+    }
 
-    // check if the role exist
-    if (!ROLES.includes(role)) throw new Error('Invalid Role');
+    // Check if the role exists
+    if (!ROLES.includes(role)) {
+      throw new Error('Invalid Role');
+    }
 
-    // check if user already exists
+    // Check if user already exists
     const userExists = await DB.getUserByEmail(email);
-    if (userExists instanceof Object)
+    if (userExists instanceof Object) {
       throw new Error('User with the email already exists');
+    }
 
-    // hash the password
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // laod db
+    // Load DB
     const db = await DB.loadDB();
 
-    // constructing the ID
-    let lastIndexID = db.usersDB.at(-1)?.id;
+    // Construct the ID
+    const lastIndexID = db.usersDB.at(-1)?.id;
 
     const newUser = {
       id: lastIndexID ? (lastIndexID += 1) : 1,
@@ -41,7 +51,7 @@ const createUser = async (req, res) => {
       createdAt: new Date(),
     };
 
-    // store into the db
+    // Store into the DB
     const updatedDB = { ...db, usersDB: [...db.usersDB, newUser] };
 
     await DB.saveToDB(updatedDB);
@@ -53,32 +63,39 @@ const createUser = async (req, res) => {
   }
 };
 
+/**
+ * Login a user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 const loginUser = async (req, res) => {
   try {
     const error = validationResult(req);
-    if (!error.isEmpty()) throw new Error('Invalid Inputs');
+    if (!error.isEmpty()) {
+      throw new Error('Invalid Inputs');
+    }
 
     const { email, password } = req.body;
 
     const user = await DB.getUserByEmail(email);
-    if (!user) throw new Error('Invalid Credentials');
+    if (!user) {
+      throw new Error('Invalid Credentials');
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) throw new Error('Invalid Credentials');
+    if (!isMatch) {
+      throw new Error('Invalid Credentials');
+    }
 
-    // create token
+    // Create token
     const token = jwt.sign(
-      {
-        _id: user.id,
-      },
+      { _id: user.id },
       JWT_SECRET_TOKEN,
-      {
-        expiresIn: '30m',
-      },
+      { expiresIn: '30m' },
     );
 
-    // return token
+    // Return token
     res.json({ token });
   } catch (error) {
     res.status(400).json({ message: error.message });

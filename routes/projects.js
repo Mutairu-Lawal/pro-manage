@@ -3,16 +3,28 @@ const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
+/**
+ * Get projects for a team
+ * @route GET /
+ */
 router.get('/', (req, res) => {
   const { teamId } = req.query;
 
-  if (!teamId) return res.json({ data: [] });
+  if (!teamId) {
+    return res.json({ data: [] });
+  }
 
-  if (isNaN(teamId)) return res.status(400).json('Invalid  TeamId');
+  if (isNaN(teamId)) {
+    return res.status(400).json('Invalid TeamId');
+  }
 
   res.json({ data: `query projects for teamId ${teamId}` });
 });
 
+/**
+ * Create a new project
+ * @route POST /
+ */
 router.post(
   '/',
   body('name').trim().notEmpty().toLowerCase().isLength({ min: 3 }),
@@ -20,7 +32,9 @@ router.post(
   async (req, res) => {
     try {
       const error = validationResult(req);
-      if (!error.isEmpty()) throw error;
+      if (!error.isEmpty()) {
+        throw error;
+      }
 
       const { name, teamId } = req.body;
 

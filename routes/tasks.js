@@ -9,6 +9,10 @@ const {
 
 const router = express.Router();
 
+/**
+ * Get tasks - GET /
+ * Create task - POST /
+ */
 router
   .route('/')
   .get(
@@ -34,6 +38,10 @@ router
     createTask,
   );
 
+/**
+ * Update task - PUT /:id
+ * Delete task - DELETE /:id
+ */
 router
   .route('/:id')
   .put(
